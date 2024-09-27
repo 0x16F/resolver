@@ -2,11 +2,13 @@ package definitions
 
 import (
 	"github.com/0x16f/vpn-resolver/internal/config"
+	"github.com/0x16f/vpn-resolver/internal/infrastructure/repo/metrics"
 	"github.com/0x16f/vpn-resolver/internal/infrastructure/repo/servers"
 	"github.com/0x16f/vpn-resolver/internal/infrastructure/repo/users"
 	"github.com/0x16f/vpn-resolver/internal/service/outline"
 	"github.com/0x16f/vpn-resolver/internal/usecase/configparser"
 	"github.com/0x16f/vpn-resolver/internal/usecase/errors"
+	"github.com/0x16f/vpn-resolver/internal/usecase/metricservice"
 	"github.com/0x16f/vpn-resolver/internal/usecase/serversservice"
 	"github.com/0x16f/vpn-resolver/internal/usecase/usersservice"
 	"github.com/sarulabs/di"
@@ -20,6 +22,7 @@ const (
 
 	outlineServiceDef = "outline-service"
 	parserServiceDef  = "parser-service"
+	metricsServiceDef = "metrics-service"
 )
 
 func getErrorsServiceDef() di.Def {
@@ -80,6 +83,18 @@ func getParserServiceDef() di.Def {
 			cfg, _ := ctn.Get(ConfigDef).(config.Config)
 
 			return configparser.New(cfg.App.Secret)
+		},
+	}
+}
+
+func getMetricsServiceDef() di.Def {
+	return di.Def{
+		Name:  metricsServiceDef,
+		Scope: di.App,
+		Build: func(ctn di.Container) (interface{}, error) {
+			metricsRepo, _ := ctn.Get(metricsRepoDef).(*metrics.Repo)
+
+			return metricservice.New(metricsRepo), nil
 		},
 	}
 }

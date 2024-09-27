@@ -22,6 +22,10 @@ type parserSrv interface {
 	ParseConfig(cfgLine string) (uuid.UUID, error)
 }
 
+type metricsSrv interface {
+	CreateMetric(ctx context.Context, req entity.MetricCreateReq) error
+}
+
 type errorsSrv interface {
 	GetError(code int) error
 }
@@ -30,14 +34,22 @@ type Handler struct {
 	serversSrv serversSrv
 	usersSrv   usersSrv
 	parserSrv  parserSrv
+	metricsSrv metricsSrv
 	errorsSrv  errorsSrv
 }
 
-func New(serversSrv serversSrv, usersSrv usersSrv, parserSrv parserSrv, errorsSrv errorsSrv) *Handler {
+func New(
+	serversSrv serversSrv,
+	usersSrv usersSrv,
+	parserSrv parserSrv,
+	metricsSrv metricsSrv,
+	errorsSrv errorsSrv,
+) *Handler {
 	return &Handler{
 		serversSrv: serversSrv,
 		usersSrv:   usersSrv,
 		parserSrv:  parserSrv,
+		metricsSrv: metricsSrv,
 		errorsSrv:  errorsSrv,
 	}
 }
@@ -60,6 +72,17 @@ func (h *Handler) GetConfig(c *fiber.Ctx) error {
 	server, err := h.serversSrv.GetServer(c.Context(), user.ServerID)
 	if err != nil {
 		logrus.Errorf("failed to get server: %v", err)
+
+		return h.errorsSrv.GetError(codes.ServerError)
+	}
+
+	err = h.metricsSrv.CreateMetric(c.Context(), entity.MetricCreateReq{
+		UserID:   userID,
+		ServerID: user.ServerID,
+	})
+
+	if err != nil {
+		logrus.Errorf("failed to create metric: %v", err)
 
 		return h.errorsSrv.GetError(codes.ServerError)
 	}

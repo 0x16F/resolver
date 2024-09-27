@@ -7,7 +7,6 @@ import (
 	cerrors "github.com/0x16f/vpn-resolver/internal/usecase/errors"
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 type Server struct {
@@ -41,8 +40,6 @@ func New() *Server {
 }
 
 func (s *Server) Start(port uint16) error {
-	s.App.Use(logger.New())
-
 	return s.App.Listen(fmt.Sprintf(":%d", port))
 }
 

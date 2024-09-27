@@ -8,8 +8,11 @@ import (
 	"github.com/0x16f/vpn-resolver/internal/controller/httpsrv/handlers/users"
 	"github.com/0x16f/vpn-resolver/internal/usecase/configparser"
 	"github.com/0x16f/vpn-resolver/internal/usecase/errors"
+	"github.com/0x16f/vpn-resolver/internal/usecase/metricservice"
 	"github.com/0x16f/vpn-resolver/internal/usecase/serversservice"
 	"github.com/0x16f/vpn-resolver/internal/usecase/usersservice"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/sarulabs/di"
 )
 
@@ -28,12 +31,21 @@ func getHTTPSrvDef() di.Def {
 			usersSrv, _ := ctn.Get(usersServiceDef).(*usersservice.Service)
 			errSrv, _ := ctn.Get(errorsService).(errors.Service)
 			parserSrv, _ := ctn.Get(parserServiceDef).(*configparser.Service)
+			metricsSrv, _ := ctn.Get(metricsServiceDef).(*metricservice.Service)
 
 			srv := httpsrv.New()
 
 			usersHandler := users.New(cfg.App.URI, usersSrv, errSrv, parserSrv)
 			serversHandler := servers.New(serversSrv, errSrv)
-			outlineHandler := outline.New(serversSrv, usersSrv, parserSrv, errSrv)
+			outlineHandler := outline.New(serversSrv, usersSrv, parserSrv, metricsSrv, errSrv)
+
+			srv.Use(logger.New())
+
+			srv.Use(cors.New(cors.Config{
+				AllowOrigins: "*",
+				AllowMethods: "",
+				AllowHeaders: "*",
+			}))
 
 			v1 := srv.Group("/api/v1")
 			{

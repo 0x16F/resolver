@@ -11,19 +11,6 @@ services:
       POSTGRES_DB: resolver
     networks:
         - resolver-network
-  resolver:
-    container_name: resolver
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgresql
-    env_file:
-      - ./build/.env
-    networks:
-        - resolver-network
 
 networks:
   resolver-network:

@@ -21,6 +21,7 @@ func New(stopCtx context.Context) (di.Container, error) {
 		// repos
 		getServersRepoDef(),
 		getUsersRepoDef(),
+		getMetricsRepoDef(),
 
 		// server
 		getHTTPSrvDef(),
@@ -31,6 +32,7 @@ func New(stopCtx context.Context) (di.Container, error) {
 		getUsersServiceDef(),
 		getOutlineServiceDef(),
 		getParserServiceDef(),
+		getMetricsServiceDef(),
 	}...); err != nil {
 		return nil, err
 	}
