@@ -22,7 +22,7 @@ func NewRepo(db *pgxpool.Pool) *Repo {
 func (r *Repo) GetServer(ctx context.Context, id int) (entity.Server, error) {
 	query := `
 		SELECT
-			id, ip, url, port, secret
+			id, ip, url, port, secret, user_port
 		FROM
 			vp_servers
 		WHERE
@@ -33,9 +33,9 @@ func (r *Repo) GetServer(ctx context.Context, id int) (entity.Server, error) {
 		"server_id": id,
 	}
 
-	server := entity.Server{}
+	s := entity.Server{}
 
-	err := r.db.QueryRow(ctx, query, args).Scan(&server.ID, &server.IP, &server.URL, &server.Port, &server.Secret)
+	err := r.db.QueryRow(ctx, query, args).Scan(&s.ID, &s.IP, &s.URL, &s.Port, &s.Secret, &s.UserPort)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return entity.Server{}, entity.ErrServerNotFound
@@ -44,13 +44,13 @@ func (r *Repo) GetServer(ctx context.Context, id int) (entity.Server, error) {
 		return entity.Server{}, err
 	}
 
-	return server, err
+	return s, err
 }
 
 func (r *Repo) GetServers(ctx context.Context) ([]entity.Server, error) {
 	query := `
 		SELECT
-			id, ip, url, port, secret
+			id, ip, url, port, secret, user_port
 		FROM
 			vp_servers
 		WHERE blocked = @blocked
@@ -70,7 +70,7 @@ func (r *Repo) GetServers(ctx context.Context) ([]entity.Server, error) {
 	server := entity.Server{}
 
 	for rows.Next() {
-		err = rows.Scan(&server.ID, &server.IP, &server.URL, &server.Port, &server.Secret)
+		err = rows.Scan(&server.ID, &server.IP, &server.URL, &server.Port, &server.Secret, &server.UserPort)
 		if err != nil {
 			return nil, err
 		}
@@ -83,14 +83,20 @@ func (r *Repo) GetServers(ctx context.Context) ([]entity.Server, error) {
 
 func (r *Repo) CreateServer(ctx context.Context, req entity.CreateServerReq) (entity.Server, error) {
 	query := `
-		INSERT INTO vp_servers (ip, url, port, secret) VALUES (@ip, @url, @port, @secret) RETURNING id
+		INSERT INTO
+			vp_servers (ip, url, port, secret, user_port)
+		VALUES
+			(@ip, @url, @port, @secret, @user_port)
+		RETURNING
+			id
 	`
 
 	args := pgx.NamedArgs{
-		"ip":     req.IP,
-		"url":    req.URL,
-		"port":   req.Port,
-		"secret": req.Secret,
+		"ip":        req.IP,
+		"url":       req.URL,
+		"port":      req.Port,
+		"secret":    req.Secret,
+		"user_port": req.UserPort,
 	}
 
 	server := entity.Server{}

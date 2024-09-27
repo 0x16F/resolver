@@ -76,5 +76,11 @@
     "message": "Incorrect cfg line",
     "description": "Incorrect cfg line",
     "http_code": 400
+  },
+  {
+    "code": 1013,
+    "message": "Incorrect user port",
+    "description": "Incorrect user port",
+    "http_code": 400
   }
 ]

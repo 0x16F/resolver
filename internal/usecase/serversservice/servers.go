@@ -43,12 +43,17 @@ func (s *Service) CreateServer(ctx context.Context, req entity.CreateServerReq) 
 		return entity.Server{}, s.errorService.GetError(codes.ServerEmptyURL)
 	}
 
-	if req.Port == 0 {
+	if req.Port <= 0 || req.Port > 65535 {
 		return entity.Server{}, s.errorService.GetError(codes.ServerEmptyPort)
 	}
 
 	if req.Secret == "" {
 		return entity.Server{}, s.errorService.GetError(codes.ServerEmptySecret)
+	}
+
+	if req.UserPort <= 0 || req.UserPort > 65535 {
+		return entity.Server{}, s.errorService.GetError(codes.IncorrectUserPort)
+
 	}
 
 	server, err := s.serversRepo.CreateServer(ctx, req)

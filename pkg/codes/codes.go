@@ -14,4 +14,5 @@ const (
 	ServerInvalidIP   = 1010
 	ServerInvalidURL  = 1011
 	IncorrectCfgLine  = 1012
+	IncorrectUserPort = 1013
 )
