@@ -1,0 +1,28 @@
+-- +goose Up
+
+CREATE TABLE vp_servers (
+    id SERIAL PRIMARY KEY,
+    ip VARCHAR(255) NOT NULL UNIQUE,
+    url VARCHAR(255) NOT NULL UNIQUE,
+    port INT NOT NULL,
+    secret VARCHAR(255) NOT NULL,
+    blocked BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE vp_users (
+    id UUID PRIMARY KEY,
+    outline_id VARCHAR(16) NOT NULL,
+    server_id INT NOT NULL REFERENCES vp_servers(id),
+    username VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(outline_id, server_id)
+);
+
+-- +goose Down
+
+DROP TABLE vp_users;
+DROP TABLE vp_servers;
