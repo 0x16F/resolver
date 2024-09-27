@@ -66,7 +66,7 @@ func (h *Handler) GetConfig(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(entity.SSConf{
 		Server:   server.IP,
-		Port:     server.Port,
+		Port:     server.UserPort,
 		Password: user.Password,
 		Method:   "chacha20-ietf-poly1305",
 	})

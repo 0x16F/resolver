@@ -12,7 +12,6 @@ type User struct {
 
 type CreateUserReq struct {
 	Username string `json:"username"`
-	Password string `json:"password"`
 }
 
 type CreateRepoUserReq struct {

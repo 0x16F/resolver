@@ -6,6 +6,7 @@ import (
 
 	"github.com/0x16f/vpn-resolver/internal/entity"
 	"github.com/0x16f/vpn-resolver/pkg/codes"
+	"github.com/0x16f/vpn-resolver/pkg/generator"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
@@ -78,10 +79,6 @@ func (s *Service) CreateUser(ctx context.Context, req entity.CreateUserReq) ([]e
 		return nil, s.errorSrv.GetError(codes.UserEmptyUsername)
 	}
 
-	if req.Password == "" {
-		return nil, s.errorSrv.GetError(codes.UserEmptyPassword)
-	}
-
 	servers, err := s.serversSrv.GetServers(ctx)
 	if err != nil {
 		logrus.Errorf("failed to get servers: %v", err)
@@ -91,10 +88,17 @@ func (s *Service) CreateUser(ctx context.Context, req entity.CreateUserReq) ([]e
 
 	users := make([]entity.User, 0, len(servers))
 
+	password, err := generator.GeneratePassword(32)
+	if err != nil {
+		logrus.Errorf("failed to generate password: %v", err)
+
+		return nil, s.errorSrv.GetError(codes.ServerError)
+	}
+
 	for _, server := range servers {
 		resp, err := s.outlineSrv.CreateUser(ctx, entity.OutlineCreateUserReq{
 			Name:     req.Username,
-			Password: req.Password,
+			Password: password,
 			OutlineInfo: entity.OutlineInfo{
 				OutlineURL:    server.IP,
 				OutlinePort:   server.Port,
@@ -110,7 +114,7 @@ func (s *Service) CreateUser(ctx context.Context, req entity.CreateUserReq) ([]e
 
 		user := entity.NewUser(entity.CreateRepoUserReq{
 			Username:  req.Username,
-			Password:  req.Password,
+			Password:  password,
 			OutlineID: resp.Id,
 			ServerID:  server.ID,
 		})
