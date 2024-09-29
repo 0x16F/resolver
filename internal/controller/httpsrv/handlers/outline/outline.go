@@ -79,6 +79,7 @@ func (h *Handler) GetConfig(c *fiber.Ctx) error {
 	err = h.metricsSrv.CreateMetric(c.Context(), entity.MetricCreateReq{
 		UserID:   userID,
 		ServerID: user.ServerID,
+		IP:       string(c.Request().Header.Peek(entity.HeaderIP)),
 	})
 
 	if err != nil {

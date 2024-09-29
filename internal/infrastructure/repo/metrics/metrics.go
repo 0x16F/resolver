@@ -21,14 +21,15 @@ func NewRepo(db *pgxpool.Pool) *Repo {
 func (r *Repo) CreateMetric(ctx context.Context, req entity.MetricCreateReq) error {
 	query := `
 		INSERT INTO
-			vp_usage_metrics (user_id, server_id)
+			vp_usage_metrics (user_id, server_id, ip)
 		VALUES
-			(@user_id, @server_id)
+			(@user_id, @server_id, @ip)
 	`
 
 	args := pgx.NamedArgs{
 		"user_id":   req.UserID,
 		"server_id": req.ServerID,
+		"ip":        req.IP,
 	}
 
 	_, err := r.db.Exec(ctx, query, args)
