@@ -12,4 +12,5 @@ type MetricCreateReq struct {
 	ServerID int       `json:"server_id"`
 	UserID   uuid.UUID `json:"user_id"`
 	IP       string    `json:"remote_ip"`
+	Agent    string    `json:"user_agent"`
 }

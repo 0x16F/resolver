@@ -80,6 +80,7 @@ func (h *Handler) GetConfig(c *fiber.Ctx) error {
 		UserID:   userID,
 		ServerID: user.ServerID,
 		IP:       string(c.Request().Header.Peek(entity.HeaderIP)),
+		Agent:    string(c.Request().Header.Peek(entity.HeaderUserAgent)),
 	})
 
 	if err != nil {

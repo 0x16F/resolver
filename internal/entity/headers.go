@@ -1,5 +1,6 @@
 package entity
 
 var (
-	HeaderIP = "X-Real-IP"
+	HeaderIP        = "X-Real-IP"
+	HeaderUserAgent = "user-agent"
 )
